@@ -2,9 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals, absolute_import
-
 from six import StringIO, string_types, text_type, integer_types
-
+import six
 from dateutil.tz import tzical
 import copy
 import collections
@@ -91,6 +90,7 @@ class Calendar(Component):
             >>> c = Calendar(); c.append(Event(name="My cool event"))
             >>> open('my.ics', 'w').writelines(c)
         """
+
         for line in str(self).split('\n'):
             l = line + '\n'
             yield l

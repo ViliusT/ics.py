@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals, absolute_import
-
+from six import text_type as str
+from .tools import ensure_text
+import six
 import collections
-
 CRLF = '\r\n'
 
 
@@ -12,6 +13,7 @@ class ParseError(Exception):
     pass
 
 
+@six.python_2_unicode_compatible
 class ContentLine:
     """ represents one property of calendar content
 
@@ -39,7 +41,7 @@ class ContentLine:
         params_str = ''
         for pname in self.params:
             params_str += ';{}={}'.format(pname, ','.join(self.params[pname]))
-        return "{}{}:{}".format(self.name, params_str, self.value)
+        return ensure_text("{}{}:{}".format(self.name, params_str, self.value))
 
     def __repr__(self):
         return "<ContentLine '{}' with {} parameter{}. Value='{}'>" \
@@ -83,6 +85,7 @@ class ContentLine:
         return self.__class__(self.name, dict(self.params), self.value)
 
 
+@six.python_2_unicode_compatible
 class Container(list):
     """ represents one calendar object.
     Contains a list of ContentLines or Containers.
@@ -95,16 +98,16 @@ class Container(list):
         self.name = name
 
     def __str__(self):
-        name = self.name
-        ret = ['BEGIN:' + name]
+        name = str(self.name)
+        ret = [u'BEGIN:' + name]
         for line in self:
             ret.append(str(line))
-        ret.append('END:' + name)
-        return CRLF.join(ret)
+        ret.append(u'END:' + name)
+        return str(CRLF.join(ret))
 
     def __repr__(self):
-        return "<Container '{}' with {} element{}>" \
-            .format(self.name, len(self), "s" if len(self) > 1 else "")
+        return str("<Container '{}' with {} element{}>" \
+            .format(str(self.name), len(self), "s" if len(self) > 1 else ""))
 
     @classmethod
     def parse(cls, name, tokenized_lines):
@@ -133,16 +136,17 @@ def unfold_lines(physical_lines):
         raise ParseError('Parameter `physical_lines` must be an iterable')
     current_line = ''
     for line in physical_lines:
+        line = ensure_text(line)
         if len(line.strip()) == 0:
             continue
         elif not current_line:
-            current_line = line.strip('\r')
+            current_line = line.strip(u'\r')
         elif line[0] in (' ', '\t'):
             # TODO : remove more spaces if needed
-            current_line += line[1:].strip('\r')
+            current_line += line[1:].strip(u'\r')
         else:
             yield(current_line)
-            current_line = line.strip('\r')
+            current_line = line.strip(u'\r')
     if current_line:
         yield(current_line)
 

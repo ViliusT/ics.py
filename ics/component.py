@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals, absolute_import
-
-from six import StringIO, string_types, text_type, integer_types
+import six
+from six import StringIO, string_types, text_type as str, integer_types
 
 import warnings
 from collections import namedtuple
@@ -17,6 +17,7 @@ Extractor = namedtuple(
 )
 
 
+@six.python_2_unicode_compatible
 class Component(object):
     _TYPE = "ABSTRACT"
 

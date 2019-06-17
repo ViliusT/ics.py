@@ -1,4 +1,14 @@
 import re
+from six import binary_type, text_type
+
+
+def ensure_text(s, encoding='utf-8', errors='strict'):
+    if isinstance(s, binary_type):
+        return s.decode(encoding, errors)
+    elif isinstance(s, text_type):
+        return s
+    else:
+        raise TypeError("not expecting type '%s'" % type(s))
 
 
 def striphtml(data):
